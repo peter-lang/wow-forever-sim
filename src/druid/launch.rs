@@ -151,6 +151,17 @@ impl Style {
                 }
                 o
             }
+            // one mob at a time after the respec: the 30 Balance points under Moonkin Form and the
+            // form itself at 40 (it is the most a point is worth from 25 on), then Restoration's
+            // points through Nature's Focus, and what is left by its worth a point at 40-59
+            Style::MoonkinSingle => {
+                let list: &[(&str, u32)] = &[
+                    ("Improved Wrath", 5), ("Moonglow", 3), ("Improved Moonfire", 2), ("Nature's Majesty", 2), ("Nature's Reach", 2), ("Nature's Splendor", 1),
+                    ("Insect Swarm", 1), ("Vengeance", 5), ("Nature's Grace", 1), ("Eclipse", 3), ("Moonfury", 5), ("Moonkin Form", 1),
+                    ("Nature's Focus", 5), ("Naturalist", 5), ("Reflection", 3), ("Genesis", 5), ("Improved Starfire", 2),
+                ];
+                list.iter().flat_map(|(n, r)| std::iter::repeat_n(*n, *r as usize)).collect()
+            }
             _ => self.order(),
         }
     }
@@ -162,7 +173,7 @@ pub struct Route {
     pub legs: &'static [(Style, Style, i32)],
 }
 
-pub const ROUTES: [Route; 7] = [
+pub const ROUTES: [Route; 8] = [
     Route { name: "balance", legs: &[(Style::MoonkinSingle, Style::MoonkinSingle, 10), (Style::Hurricane, Style::Hurricane, 40)] },
     Route { name: "balance_plain", legs: &[(Style::Hurricane, Style::Hurricane, 10)] },
     Route { name: "feral", legs: &[(Style::Feral, Style::Feral, 10)] },
@@ -172,4 +183,6 @@ pub const ROUTES: [Route; 7] = [
     Route { name: "cat_feral", legs: &[(Style::Cat, Style::Feral, 10)] },
     // Balance one mob at a time to 60, no Hurricane
     Route { name: "single", legs: &[(Style::MoonkinSingle, Style::MoonkinSingle, 10)] },
+    // Balance's first leg, then a respec at 40 into Moonkin Form, still one mob at a time
+    Route { name: "moonkin_single", legs: &[(Style::MoonkinSingle, Style::MoonkinSingle, 10), (Style::MoonkinSingle, Style::MoonkinSingle, 40)] },
 ];

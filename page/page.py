@@ -1,4 +1,4 @@
-"""The druid levelling page: three routes from the hand-written talent orders,
+"""The druid levelling page: four routes from the hand-written talent orders,
 built from the sim's results. Run from the repository root after `page/run.sh`:
 
     python3 page/page.py      # writes docs/index.html
@@ -218,7 +218,7 @@ def compare(f, b):
     return {"tie": TIE, "ranges": ranges, "levels": levels, "total": {"f": sum(r["f"] for r in levels), "b": sum(r["b"] for r in levels)}}
 
 
-ROUTES = (("balance", "Balance: Moonkin, Hurricane"), ("feral", "Feral: cat, then bear"), ("cat_feral", "Cat build"))
+ROUTES = (("balance", "Balance: Moonkin, Hurricane"), ("moonkin_single", "Balance: Moonkin, single-target"), ("feral", "Feral: cat, then bear"), ("cat_feral", "Feral: cat-only"))
 
 
 def main():
@@ -228,7 +228,7 @@ def main():
     table = lambda a, b, title, names: {"title": title, "names": names, **compare(r[a], r[b])}
     data = {"tabs": tabs, "edges": edges, "routes": routes,
             "compare": [table("feral", "balance", "Feral against Balance", ["Feral", "Balance"]),
-                        table("cat_feral", "balance", "Cat build against Balance", ["Cat", "Balance"])]}
+                        table("cat_feral", "balance", "Feral cat-only against Balance", ["Cat", "Balance"])]}
     html = (HERE / "template.html").read_text().replace("__DATA__", json.dumps(data, ensure_ascii=False, separators=(",", ":")))
     DOCS.mkdir(exist_ok=True)
     (DOCS / "index.html").write_text(html)

@@ -1,7 +1,7 @@
 # wow-forever-sim
 
 Levelling simulations for **World of Warcraft: Forever**, built from the game
-client's own data tables: the druid from 1 to 60 (three routes, talent order
+client's own data tables: the druid from 1 to 60 (four routes, talent order
 and rotation at every level).
 
 > **This repository is purely vibe-coded.** Every line was written by an AI
@@ -22,7 +22,8 @@ Hurricane pull three mobs, with 7.5% of their kills from single-mob pulls:
 | --- | --- | --- |
 | Balance | 81.3 | one target to 39, respec at 40 into Moonkin Form, Hurricane on three mobs |
 | Feral | 89.6 | caster to 12, bear 13–19, cat 20–33, bear from 34; one build |
-| Cat build | 89.0 | bear 13–19 (before Cat Form), cat from 20; one build |
+| Balance single-target | 88.7 | Balance's first leg, respec at 40 into Moonkin Form, one mob at a time to 60 (no Hurricane) |
+| Feral cat-only | 89.0 | bear 13–19 (before Cat Form), cat from 20; one build |
 | Cat, then Balance | ~79.1 | the cat build to 39, respec to Balance at 40 (stitched from the routes) |
 
 - Levels 40–60 hold 72% of the XP from 1 to 60, and over half the hours.
@@ -86,7 +87,7 @@ Needs Rust (stable) and Python 3 (standard library only).
 ```sh
 python3 tools/fetch.py        # client tables into data/ (a few minutes)
 cargo test --release          # the rules' tests
-page/run.sh                   # the three druid routes into out/
+page/run.sh                   # the four druid routes into out/
 python3 page/page.py          # docs/index.html from them
 ```
 
