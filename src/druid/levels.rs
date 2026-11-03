@@ -293,6 +293,16 @@ impl Data {
                 for &id in &ids[1..] {
                     add(&mut g, id);
                 }
+                // the site's spell power is the pair's, the off-hand's included: the client's for the
+                // off-hand (stat 42 or 45) comes back out, or it would count twice
+                for &id in ids {
+                    let it = items::item(&self.c, id);
+                    for k in [SPELL_POWER, SPELL_DAMAGE] {
+                        if let Some(x) = it.stats.get(&k) {
+                            *g.stats.get_mut(&k).expect("the item's stat") -= x;
+                        }
+                    }
+                }
                 *g.stats.entry(SPELL_POWER).or_insert(0.0) += sp;
                 g.weapon_dps = (main.0 + main.1) / 2.0 / main.2;
                 g.weapon_speed = main.2;

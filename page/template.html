@@ -85,20 +85,6 @@ b.feral { color: var(--gold); } b.balance { color: var(--end); }
 <body>
 <div class="wrap">
   <h1>WoW: Forever druid levelling 1–60</h1>
-  <p class="sub">Simulated on client 1.60.1.70753 (the launch talent tree) with the numbers of the 2026-11-03 patch notes. High Order skyborne (Wind Blessed +2% haste, Read Leyline +50% regeneration while eating and drinking). Mobs of your own level; 55% of a level's XP comes from kills. Two gear sets, never swapped: <b>feral</b> (melee greens, two-handed weapon) or <b>Balance</b> (spell power greens and weapon). Hours include walking (Cat Form and Feral Swiftness from 20, Travel Form from 30, mount from 40). Every level is measured with its build's best rotation, over 24 seeds of 30-minute sessions.</p>
-  <h2 class="sec">Summary</h2>
-  <p class="sub"><b>Balance: 80.3 hours</b> (one target to 39, respec at 40, then Hurricane). <b>Feral: 86.5 hours</b> (caster to 12, bear 13–19, cat 20–39, bear from 40; one build, no respec). <b>Cat build: 86.8 hours</b> (bear 13–19 before Cat Form, cat from 20; no respec).</p>
-  <ul class="notes">
-    <li><b>Balance is the fastest single route</b>, by 6 hours. The feral and the cat build are level within noise (0.3%).</li>
-    <li><b>Fastest overall: cat to 39, then a respec to Balance at 40</b> with spell power gear and Hurricane on three mobs: about 78.1 hours (put together from the two routes' levels).</li>
-    <li><b>Pulls are three mobs</b> for the bear and for Hurricane, and 7.5% of kills are assumed to die alone even then.</li>
-    <li><b>Not tried in game:</b> whether three mobs stay inside Hurricane, and the extra health the patch notes give higher-level mobs (no number published, not modelled). Both could change the result.</li>
-    <li><b>What does not pay while levelling:</b> openers from stealth (no chain pulls while prowling), Starfire as the filler, Shifting Power (its mana is drunk back between pulls).</li>
-  </ul>
-  <h2 class="sec">Which is faster, and where</h2>
-  <p class="sub">Hours are a level's whole time: killing, resting and walking. Single-level differences can be noise, so they are merged with a neighbour. Within 1% counts as a tie.</p>
-  <div id="cmps" class="wrap" style="width:100%"></div>
-  <h2 class="sec">The routes</h2>
   <div class="switch" id="switch" role="group" aria-label="Route"></div>
   <div class="legend">
     <span><b class="gain">+X%</b> when taken: what the points gave at the level they were taken (the new build against the previous level's, at the same level)</span>
@@ -111,9 +97,24 @@ b.feral { color: var(--gold); } b.balance { color: var(--end); }
   <h2 class="sec">Rotation by level</h2>
   <p class="sub">A priority list: at every moment, the first entry that can be used.</p>
   <div class="tablewrap"><table id="rot"></table></div>
+  <h2 class="sec">Which is faster, and where</h2>
+  <p class="sub">Hours are a level's whole time: killing, resting and walking. Single-level differences can be noise, so they are merged with a neighbour. Within 1% counts as a tie.</p>
+  <div id="cmps" class="wrap" style="width:100%"></div>
+  <h2 class="sec">About these numbers</h2>
+  <p class="sub">Simulated on client 1.60.1.70753 (the launch talent tree) with the numbers of the 2026-11-03 patch notes. High Order skyborne (Wind Blessed +2% haste, Read Leyline +50% regeneration while eating and drinking). Mobs of your own level; 55% of a level's XP comes from kills. Two gear sets, never swapped: <b>feral</b> (melee greens, two-handed weapon) or <b>Balance</b> (spell power greens and weapon). Hours include walking (Cat Form and Feral Swiftness from 20, Travel Form from 30, mount from 40). Every level is measured with its build's best rotation, over 24 seeds of 30-minute sessions.</p>
+  <h3 class="sec">Summary</h3>
+  <p class="sub"><b>Balance: 81.3 hours</b> (one target to 39, respec at 40, then Hurricane). <b>Feral: 86.5 hours</b> (caster to 12, bear 13–19, cat 20–39, bear from 40; one build, no respec). <b>Cat build: 86.8 hours</b> (bear 13–19 before Cat Form, cat from 20; no respec).</p>
+  <ul class="notes">
+    <li><b>Balance is the fastest single route</b>, by 5 hours. The feral and the cat build are level within noise (0.3%).</li>
+    <li><b>Fastest overall: cat to 39, then a respec to Balance at 40</b> with spell power gear and Hurricane on three mobs: about 78.4 hours (put together from the two routes' levels).</li>
+    <li><b>Pulls are three mobs</b> for the bear and for Hurricane, and 7.5% of kills are assumed to die alone even then.</li>
+    <li><b>Not tried in game:</b> whether three mobs stay inside Hurricane, and the extra health the patch notes give higher-level mobs (no number published, not modelled). Both could change the result.</li>
+    <li><b>What does not pay while levelling:</b> openers from stealth (no chain pulls while prowling), Starfire as the filler, Shifting Power (its mana is drunk back between pulls).</li>
+  </ul>
   <ul class="notes">
     <li><b>How a route is made:</b> a talent order written by hand from the tooltips and from where the time goes; the sim checks it. Each level fights in whichever form is fastest there.</li>
     <li><b>Death:</b> 2 minutes back to the corpse and healed to full; the XP of the mobs being pulled is lost.</li>
+    <li><b>Gear:</b> an average green set of each level, worn two levels late, and a guide's blue weapons. The feral set is about 40% better than typical greens, so the cat and bear may be a few percent slower in practice.</li>
     <li><b>Not simulated:</b> Bash, Tranquility.</li>
   </ul>
   <p class="sub">Generated by <a href="https://github.com/peter-lang/wow-forever-sim" style="color:var(--gold)">wow-forever-sim</a>, a vibe-coded simulator. Talent icons and tooltips via foreverchanges.pro. World of Warcraft is a trademark of Blizzard Entertainment.</p>
