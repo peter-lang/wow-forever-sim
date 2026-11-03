@@ -29,10 +29,12 @@ h2.sec { font-family: var(--display); font-weight: 600; font-size: 18px; letter-
 .switch button[aria-pressed="true"] { color: var(--fg); border-color: var(--gold); }
 .switch button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 .legend { display: flex; gap: 8px 18px; flex-wrap: wrap; justify-content: center; font-size: 14px; color: var(--muted); max-width: 110ch; }
-.legend b.gain { color: var(--gain); } .legend b.end { color: var(--end); }
+.legend b.end { color: var(--end); }
 .phase { display: flex; flex-direction: column; gap: 8px; align-items: center; max-width: 100%; }
 .phase h3 { font-family: var(--display); font-weight: 600; font-size: 15px; letter-spacing: .05em; margin: 0; }
 .phase h3 span { font-family: var(--body); font-weight: 400; color: var(--muted); letter-spacing: 0; margin-left: 6px; font-size: 14px; }
+.phase .cap { margin: 0; font-size: 13.5px; color: var(--muted); text-align: center; max-width: 92ch; }
+.phase .cap b { color: var(--end); }
 .trees { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; max-width: 100%; }
 .scroll { overflow-x: auto; max-width: 100%; }
 .panel { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 0 2px 2px 16px; }
@@ -55,8 +57,8 @@ svg.arrows { position: absolute; inset: 0; pointer-events: none; overflow: visib
 .name { margin-top: 3px; font-size: 10px; line-height: 1.05; color: var(--dim); width: 70px; }
 .taken .name { color: var(--fg); }
 .vals { display: flex; gap: 3px; justify-content: center; font-size: 10.5px; line-height: 1.15; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.vals .gain { color: var(--gain); } .vals .end { color: var(--end); }
-.vals .rs { color: var(--gold); } .vals .z { opacity: .45; } .vals .big { font-weight: 700; }
+.vals .end { color: var(--end); }
+.vals .z { opacity: .45; } .vals .big { font-weight: 700; }
 .order { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 4px 14px; width: 100%; max-width: 1180px; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; font-size: 13.5px; }
 .order div { display: grid; grid-template-columns: 26px minmax(0, 1fr) auto; gap: 6px; align-items: baseline; font-variant-numeric: tabular-nums; }
 .order .lv { color: var(--muted); text-align: right; }
@@ -87,8 +89,7 @@ b.feral { color: var(--gold); } b.balance { color: var(--end); }
   <h1>WoW: Forever druid levelling 1–60</h1>
   <div class="switch" id="switch" role="group" aria-label="Route"></div>
   <div class="legend">
-    <span><b class="gain">+X%</b> when taken: what the points gave at the level they were taken (the new build against the previous level's, at the same level)</span>
-    <span><b class="end">Y%</b> at level 59, the last one played: how much slower you would be there without the talent (all its ranks removed)</span>
+    <span><b class="end">Y%</b> under a talent: how much slower you would level without it (all its ranks removed), with that build at that level. Each set of trees is measured on its own: the line above it says at which level.</span>
   </div>
   <div id="phases" class="wrap"></div>
   <h2 class="sec">Talent order by level</h2>
@@ -182,7 +183,7 @@ for (const R of DATA.routes) {
   sw.appendChild(b);
 }
 
-function treePanel(tab, P, R, isEnd) {
+function treePanel(tab, P) {
   const at = {};
   const spent = tab.talents.reduce((a, t) => a + (P.build[t.name] || 0), 0);
   const rows = 7;
@@ -203,14 +204,7 @@ function treePanel(tab, P, R, isEnd) {
     c.style.gridColumn = t.col + 1; c.style.gridRow = t.row + 1;
     let vals = "", tip = [t.name + (t.text ? ": " + t.text : "")];
     if (rank) {
-      const g = R.gains[t.name], w = P.without[t.name];
-      if (isEnd && R.bought.includes(t.name)) {
-        vals += `<span class="rs">respec</span>`;
-        tip.push("Came in with the respec: its gain when taken cannot be measured.");
-      } else if (g != null) {
-        vals += `<span class="gain${Math.abs(g) < 0.005 ? " z" : ""}${g >= 0.04 ? " big" : ""}">${pc(g)}</span>`;
-        tip.push(`When taken: ${pc(g)} (at its points' levels).`);
-      }
+      const w = P.without[t.name];
       if (w != null) {
         vals += `<span class="end${Math.abs(w) < 0.005 ? " z" : ""}${w >= 0.05 ? " big" : ""}">${pc(w)}</span>`;
         tip.push(`At level ${P.level}, ${pc(w)} slower without it.`);
@@ -249,10 +243,14 @@ function show(key) {
   R.phases.forEach((P, i) => {
     const isEnd = i === R.phases.length - 1;
     const ph = document.createElement("div"); ph.className = "phase";
-    const title = R.respec ? (isEnd ? `After the respec<span>from level ${R.respec}, the trees at 60</span>` : `Before the respec<span>levels 10–${P.level}, the trees at ${P.level}</span>`) : `The build at 60<span>from level 10, no respec</span>`;
-    ph.innerHTML = `<h3>${title}</h3>`;
+    const title = R.respec ? (isEnd ? `After the respec<span>levels ${R.respec}–${P.level}, the trees at ${P.level}</span>` : `Before the respec<span>levels 10–${P.level}, the trees at ${P.level}</span>`) : `The build at ${P.level}<span>from level 10, no respec</span>`;
+    const last = R.phases[R.phases.length - 1].level;
+    const cap = !R.respec ? `how much slower level ${P.level}, the last one played, would be without the talent, with this build.`
+      : !isEnd ? `how much slower level ${P.level}, the last before the respec, would be without the talent, with the build before it. The trees after the respec are measured again, at ${last}, so the same talent shows a different number there.`
+      : `how much slower level ${P.level}, the last one played, would be without the talent, with the build after the respec. A separate measurement from the trees above, at a different level and with a different build.`;
+    ph.innerHTML = `<h3>${title}</h3><p class="cap"><b>Y%</b>: ${cap}</p>`;
     const trees = document.createElement("div"); trees.className = "trees";
-    for (const tab of DATA.tabs) trees.appendChild(treePanel(tab, P, R, isEnd));
+    for (const tab of DATA.tabs) trees.appendChild(treePanel(tab, P));
     ph.appendChild(trees);
     host.appendChild(ph);
   });

@@ -149,7 +149,7 @@ def rotation(p, b, level):
 def route(label, key, r):
     steps, early, rows = r["path"], r["early"], {c["level"]: c for c in r["rows"]}
     respec = r["respec_at"]
-    order, gains, prev = [], {}, {}
+    order, prev = [], {}
     for s in steps:
         c = rows[s["level"]]
         new = {k: v for k, v in s["build"].items() if prev.get(k, 0) != v}
@@ -157,18 +157,11 @@ def route(label, key, r):
         is_respec = s["level"] == respec
         gone = [k for k in prev if k not in s["build"]]
         order.append({"level": s["level"], "new": [f"{k} {v}" for k, v in new.items()], "gone": gone, "gain": g, "respec": is_respec})
-        if not is_respec:
-            for k in new:
-                gains[k] = gains.get(k, 1.0) * (1 + g)
         prev = s["build"]
     # the last level actually played: 60 brings ranks no route spends time with
     end = rows[59]
     phase = lambda c: {"level": c["level"], "build": c["build"], "without": {t: c["xp"] / x - 1 for t, _, x in c["without"]}}
     phases = [phase(rows[respec - 1]), phase(end)] if respec else [phase(end)]
-    bought = []
-    if respec:
-        before, after = rows[respec - 1]["build"], rows[respec]["build"]
-        bought = [k for k, v in after.items() if before.get(k, 0) != v]
     rot = [{"level": s["level"], "new": [], "respec": False, "xp": s["xp_per_hour"], "hours": s["hours"], "rot": rotation(s["play"], {}, s["level"])} for s in early]
     prev = {}
     for s in steps:
@@ -176,7 +169,7 @@ def route(label, key, r):
         rot.append({"level": s["level"], "new": new, "respec": s["level"] == respec, "xp": rows[s["level"]]["xp"], "hours": s["hours"], "rot": rotation(rows[s["level"]]["play"], s["build"], s["level"])})
         prev = s["build"]
     return {"key": key, "label": label, "hours": r["hours"], "early": sum(s["hours"] for s in early), "respec": respec, "phases": phases,
-            "gains": {k: v - 1 for k, v in gains.items()}, "bought": bought, "order": order, "rot": rot}
+            "order": order, "rot": rot}
 
 
 def compare(f, b):
