@@ -113,7 +113,7 @@ impl Style {
             Style::Cat => &[
                 ("Ferocity", 5), ("Furor", 5), ("Feral Swiftness", 2), ("Savage Fury", 2), ("Sharpened Claws", 2), ("Feral Charge", 1), ("Predatory Strikes", 3), ("Blood Frenzy", 2),
                 ("Leader of the Pack", 1), ("Natural Instinct", 2), ("Rend and Tear", 2),
-                ("Genesis", 5), ("Nature's Majesty", 2), ("Nature's Reach", 2), ("Heart of the Wild", 5), ("Naturalist", 5), ("Natural Shapeshifter", 3), ("Improved Moonfire", 2),
+                ("Genesis", 5), ("Nature's Majesty", 2), ("Nature's Reach", 2), ("Heart of the Wild", 5), ("Naturalist", 5), ("Natural Shapeshifter", 3), ("Rend and Tear", 2),
             ],
             Style::Hurricane => &[
                 ("Improved Wrath", 5), ("Moonglow", 3), ("Improved Moonfire", 2), ("Nature's Reach", 2), ("Nature's Majesty", 2), ("Nature's Splendor", 1), ("Insect Swarm", 1), ("Vengeance", 5), ("Genesis", 4), ("Moonfury", 5), ("Moonkin Form", 1),
