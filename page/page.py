@@ -158,16 +158,17 @@ def route(label, key, r):
         gone = [k for k in prev if k not in s["build"]]
         order.append({"level": s["level"], "new": [f"{k} {v}" for k, v in new.items()], "gone": gone, "gain": g, "respec": is_respec})
         prev = s["build"]
-    # a talent's worth over a leg: the leg's hours without it (taken out at every level that has it) against its hours
-    # with it. Before a respec the leg is 1 to the respec, after it the respec to 60; 60 itself is not played.
-    hours = {s["level"]: s["hours"] for s in early + steps if s["level"] < 60}
+    # a talent's worth over a leg: from the level it was taken (or the leg's start, for one the respec brought)
+    # to the leg's end, the hours without it (taken out at every one of those levels) against the hours with it.
+    # Before a respec the leg ends at the respec, after it at 60; 60 itself is not played.
+    hours = {s["level"]: s["hours"] for s in steps if s["level"] < 60}
     def phase(lo, hi):
-        with_ = sum(hours[l] for l in range(lo, hi + 1))
-        out = {l: {t: h for t, _, _, h in rows[l]["without"]} for l in range(max(lo, steps[0]["level"]), hi + 1)}
+        out = {l: {t: h for t, _, _, h in rows[l]["without"]} for l in range(lo, hi + 1)}
         names = rows[hi]["build"]
-        return {"level": hi, "lo": lo, "build": names,
-                "without": {t: sum(out.get(l, {}).get(t, hours[l]) for l in range(lo, hi + 1)) / with_ - 1 for t in names}}
-    phases = [phase(1, respec - 1), phase(respec, 59)] if respec else [phase(1, 59)]
+        since = {t: next(l for l in range(lo, hi + 1) if t in out[l]) for t in names}
+        worth = {t: sum(out[l][t] for l in range(since[t], hi + 1)) / sum(hours[l] for l in range(since[t], hi + 1)) - 1 for t in names}
+        return {"level": hi, "end": hi + 1, "build": names, "since": since, "without": worth}
+    phases = [phase(steps[0]["level"], respec - 1), phase(respec, 59)] if respec else [phase(steps[0]["level"], 59)]
     rot = [{"level": s["level"], "new": [], "respec": False, "xp": s["xp_per_hour"], "hours": s["hours"], "rot": rotation(s["play"], {}, s["level"])} for s in early]
     prev = {}
     for s in steps:
