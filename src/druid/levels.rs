@@ -97,6 +97,17 @@ const CASTER_STATS: [(&str, &[i64]); 6] = [
 ];
 /// the set worn at level L is the one required at L - GEAR_LAG (assumption, as the warlock's)
 pub const GEAR_LAG: i32 = 2;
+/// The feral set is calibrated, stat by stat, to typical greens over these levels: per slot, the mean of
+/// the 3 best real greens worn there. Items requiring 30 or less were visible in the beta and match
+/// Wowhead; the client's later items are not trusted, so the shares are fitted here and the budget
+/// carries them on. (The leatherworking greens alone made a best-in-slot set: 40-45% above typical.)
+const CALIBRATION_LEVELS: [i32; 7] = [20, 22, 24, 26, 28, 30, 32];
+const TYPICAL_PICKS: usize = 3;
+/// A point of each stat's worth to the cat, XP an hour per point at 25-35 (the sim, +20 a stat, 96
+/// seeds): what ranks a slot's greens
+const FERAL_WEIGHTS: [(i64, f64); 4] = [(AGILITY, 0.16), (STRENGTH, 0.16), (ATTACK_POWER, 0.08), (STAMINA, 0.01)];
+/// greens no levelling character has: Feast of Winter Veil's
+const SEASONAL: [i64; 1] = [17721];
 /// The site's feral path (two-handers by DPS, High Order skyborne), every
 /// upgrade (2026-10-26): the level worn from (the slot's or the
 /// item's own, the later), the item.
@@ -206,7 +217,57 @@ impl Data {
         let mut d = Data { c, race, tree, book, feral_shares: Vec::new(), caster_shares: Vec::new(), kit, style: std::env::var("STYLE").ok().map(|n| launch::Style::from_name(&n)) };
         d.feral_shares = d.shares(&FERAL_GREENS, &FERAL_STATS);
         d.caster_shares = d.shares(&CASTER_GREENS, &CASTER_STATS);
+        d.feral_shares = d.calibrated(&d.feral_shares, &FERAL_STATS, &FERAL_WEIGHTS);
         d
+    }
+
+    /// The greens a set slot can take at a required level: armor a druid wears (cloth, leather, or
+    /// jewellery and cloaks), green, of a levelling character's (required within 10 of the item
+    /// level, at least 5: not compensation or test items), and not seasonal.
+    fn greens(&self) -> Vec<items::Item> {
+        self.c
+            .t("ItemSparse")
+            .iter()
+            .filter(|r| self.c.t("Item").get(r.i("ID")).is_some())
+            .map(|r| items::item(&self.c, r.i("ID")))
+            .filter(|it| it.class_id == 4 && matches!(it.subclass_id, 0 | 1 | 2) && it.quality == 2 && !it.stats.is_empty())
+            .filter(|it| it.required_level >= 5 && it.required_level >= it.item_level - 10 && !SEASONAL.contains(&it.id))
+            .collect()
+    }
+
+    /// A typical green set's stats at a level: per set slot, the mean of the `TYPICAL_PICKS` best
+    /// greens worn there (`GEAR_LAG` behind), best by `weights`; a slot with none counts nothing.
+    fn typical(&self, greens: &[items::Item], level: i32, stats: &[(&str, &[i64])], weights: &[(i64, f64)]) -> Vec<f64> {
+        let req = (level - GEAR_LAG) as i64;
+        let worth = |it: &items::Item| weights.iter().map(|&(k, w)| w * it.stats.get(&k).copied().unwrap_or(0.0)).sum::<f64>();
+        let mut total = vec![0.0; stats.len()];
+        for &inv in &SET_SLOTS {
+            let mut fits: Vec<&items::Item> =
+                greens.iter().filter(|it| it.required_level <= req && (it.inventory_type == inv || (inv == 5 && it.inventory_type == 20))).collect();
+            fits.sort_by(|a, b| worth(b).total_cmp(&worth(a)));
+            fits.truncate(TYPICAL_PICKS);
+            for it in &fits {
+                for (k, (_, ss)) in stats.iter().enumerate() {
+                    total[k] += ss.iter().map(|s| it.stats.get(s).copied().unwrap_or(0.0)).sum::<f64>() / fits.len() as f64;
+                }
+            }
+        }
+        total
+    }
+
+    /// `shares` scaled stat by stat so the set matches typical greens over `CALIBRATION_LEVELS`.
+    fn calibrated(&self, shares: &[f64], stats: &[(&str, &[i64])], weights: &[(i64, f64)]) -> Vec<f64> {
+        let greens = self.greens();
+        let (mut typical, mut model) = (vec![0.0; shares.len()], vec![0.0; shares.len()]);
+        for &level in &CALIBRATION_LEVELS {
+            let t = self.typical(&greens, level, stats, weights);
+            let budget = self.set_budget((level - GEAR_LAG) as i64 + 5);
+            for k in 0..shares.len() {
+                typical[k] += t[k];
+                model[k] += shares[k] * budget;
+            }
+        }
+        shares.iter().enumerate().map(|(k, s)| if model[k] > 0.0 { s * typical[k] / model[k] } else { *s }).collect()
     }
 
     /// Every spell of the book by the level its first rank is learnt.
