@@ -89,7 +89,7 @@ b.feral { color: var(--gold); } b.balance { color: var(--end); }
   <h1>WoW: Forever druid levelling 1–60</h1>
   <div class="switch" id="switch" role="group" aria-label="Route"></div>
   <div class="legend">
-    <span><b class="end">Y%</b> under a talent: how much slower you would level without it (all its ranks removed), with that build at that level. Each set of trees is measured on its own: the line above it says at which level.</span>
+    <span><b class="end">Y%</b> under a talent: how much longer one level takes without it (all its ranks removed), with that build at that level, not the whole journey there. Each set of trees is measured on its own: the line above it says at which level.</span>
   </div>
   <div id="phases" class="wrap"></div>
   <h2 class="sec">Talent order by level</h2>
@@ -245,9 +245,9 @@ function show(key) {
     const ph = document.createElement("div"); ph.className = "phase";
     const title = R.respec ? (isEnd ? `After the respec<span>levels ${R.respec}–${P.level}, the trees at ${P.level}</span>` : `Before the respec<span>levels 10–${P.level}, the trees at ${P.level}</span>`) : `The build at ${P.level}<span>from level 10, no respec</span>`;
     const last = R.phases[R.phases.length - 1].level;
-    const cap = !R.respec ? `how much slower level ${P.level}, the last one played, would be without the talent, with this build.`
-      : !isEnd ? `how much slower level ${P.level}, the last before the respec, would be without the talent, with the build before it. The trees after the respec are measured again, at ${last}, so the same talent shows a different number there.`
-      : `how much slower level ${P.level}, the last one played, would be without the talent, with the build after the respec. A separate measurement from the trees above, at a different level and with a different build.`;
+    const cap = !R.respec ? `how much longer level ${P.level} alone (${P.level} to ${P.level + 1}, the last level played) would take without the talent, with this build.`
+      : !isEnd ? `how much longer level ${P.level} alone (${P.level} to ${P.level + 1}, the last level before the respec) would take without the talent, with the build before it. The trees after the respec are measured again, at ${last}, so the same talent shows a different number there.`
+      : `how much longer level ${P.level} alone (${P.level} to ${P.level + 1}, the last level played) would take without the talent, with the build after the respec. A separate measurement from the trees above, at a different level and with a different build.`;
     ph.innerHTML = `<h3>${title}</h3><p class="cap"><b>Y%</b>: ${cap}</p>`;
     const trees = document.createElement("div"); trees.className = "trees";
     for (const tab of DATA.tabs) trees.appendChild(treePanel(tab, P));
