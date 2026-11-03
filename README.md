@@ -15,7 +15,8 @@ Pages (Settings → Pages → Deploy from a branch → `main`, `/docs`).
 ## Results: the druid, 1 to 60
 
 Hours to level 60 on client 1.60.1.70753 (the launch talent tree) with the
-numbers of the 2026-11-03 patch notes, a High Order skyborne, three-mob pulls:
+numbers of the 2026-11-03 patch notes, a High Order skyborne. The bear and
+Hurricane pull three mobs, with 7.5% of their kills from single-mob pulls:
 
 | Route | Hours | How |
 | --- | --- | --- |
