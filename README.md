@@ -47,6 +47,15 @@ Hurricane pull three mobs, with 7.5% of their kills from single-mob pulls:
   the guide's spell power for caster weapons (the client stores none on main
   hands). With Hurricane, spell power is worth almost nothing (its
   coefficient is 0.03 a tick; the storm runs on mana).
+- **What gear stats are worth** (the page's tables; each route's build and
+  rotation held, one stat added at a time). For 10 strength at 40–59: the
+  bear takes 9.8 agility, 20 attack power, 0.68% crit or 3.4% dodge, and
+  barely values stamina or armour (it never dies); the cat 9.2 agility, 21
+  attack power, 1.4% crit or 250 armour (10.5 agility and 2.5% crit at
+  20–39, where stamina beats strength: the cat dies there). For 10 spell
+  power: to 39, one target, spell power only (4.4% XP an hour); from 40
+  Hurricane runs on mana, so 6.5 intellect or 9.8 spirit match it, and spell
+  power adds 0.55%.
 - **Not modelled:** the extra health the 2026-11-03 notes give higher-level
   mobs (no number was published), and whether three mobs really stay inside
   Hurricane. Either could change the ranking.

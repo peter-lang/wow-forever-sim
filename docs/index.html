@@ -100,6 +100,51 @@ b.feral { color: var(--gold); } b.balance { color: var(--end); }
   <h2 class="sec">Which is faster, and where</h2>
   <p class="sub">Hours are a level's whole time: killing, resting and walking. Single-level differences can be noise, so they are merged with a neighbour. Within 1% counts as a tie.</p>
   <div id="cmps" class="wrap" style="width:100%"></div>
+  <h2 class="sec">What gear stats are worth</h2>
+  <p class="sub">Each route's own build and rotation held, one stat added at a time (±10 strength or agility, ±20 attack power, spell power, intellect or spirit, ±30 stamina, ±1% crit or dodge, ±100 armour); 2,000 seeds a level, 10,000 at level 59. A range's number averages each stat's XP-an-hour gain over its levels, then converts. The tables say how much of a stat is worth as much as <b>10 strength</b> (melee) or <b>10 spell power</b> (Balance).</p>
+  <h3 class="sec">Bear (three mobs), 10 strength =</h3>
+  <div class="tablewrap" style="max-width:720px"><table>
+    <thead><tr><th>Stat</th><th class="r">Levels 40–59</th><th class="r">Level 59</th></tr></thead>
+    <tbody>
+      <tr><td>Agility</td><td class="r"><b>9.8</b></td><td class="r"><b>9.0</b></td></tr>
+      <tr><td>Attack power</td><td class="r">20</td><td class="r">20</td></tr>
+      <tr><td>Crit</td><td class="r"><b>0.68%</b></td><td class="r"><b>0.55%</b></td></tr>
+      <tr><td>Dodge</td><td class="r">3.4%</td><td class="r">2.6%</td></tr>
+      <tr><td>Stamina</td><td class="r">next to nothing</td><td class="r">about 75</td></tr>
+      <tr><td>Armour on gear</td><td class="r" colspan="2">next to nothing (750–1,150)</td></tr>
+      <tr><td><i>10 strength, XP an hour</i></td><td class="r">644 (1.4%)</td><td class="r">599 (1.1%)</td></tr>
+    </tbody>
+  </table></div>
+  <h3 class="sec">Cat (one mob), 10 strength =</h3>
+  <div class="tablewrap" style="max-width:720px"><table>
+    <thead><tr><th>Stat</th><th class="r">Levels 20–39</th><th class="r">Levels 40–59</th><th class="r">Level 59</th></tr></thead>
+    <tbody>
+      <tr><td>Agility</td><td class="r"><b>10.5</b></td><td class="r"><b>9.2</b></td><td class="r"><b>9.7</b></td></tr>
+      <tr><td>Attack power</td><td class="r">20</td><td class="r">21</td><td class="r">22</td></tr>
+      <tr><td>Crit</td><td class="r"><b>2.5%</b></td><td class="r"><b>1.4%</b></td><td class="r"><b>1.2%</b></td></tr>
+      <tr><td>Dodge</td><td class="r">12.9%</td><td class="r">5.1%</td><td class="r">4.9%</td></tr>
+      <tr><td>Stamina</td><td class="r"><b>7.5</b></td><td class="r">18</td><td class="r">22</td></tr>
+      <tr><td>Armour on gear</td><td class="r">360</td><td class="r">250</td><td class="r">280</td></tr>
+      <tr><td><i>10 strength, XP an hour</i></td><td class="r">560 (1.6%)</td><td class="r">420 (0.9%)</td><td class="r">408 (0.8%)</td></tr>
+    </tbody>
+  </table></div>
+  <h3 class="sec">Balance, 10 spell power =</h3>
+  <div class="tablewrap" style="max-width:720px"><table>
+    <thead><tr><th>Stat</th><th class="r">Levels 20–39, one target</th><th class="r">Levels 40–59, Hurricane on three</th></tr></thead>
+    <tbody>
+      <tr><td>Intellect</td><td class="r">about 490</td><td class="r"><b>6.5</b></td></tr>
+      <tr><td>Spirit</td><td class="r">57</td><td class="r"><b>9.8</b></td></tr>
+      <tr><td>Stamina</td><td class="r">about 250</td><td class="r"><b>8.9</b></td></tr>
+      <tr><td>What binds it</td><td class="r">damage</td><td class="r">mana, and deaths at 40–43</td></tr>
+      <tr><td><i>10 spell power, XP an hour</i></td><td class="r">+4.4%</td><td class="r">+0.55%</td></tr>
+    </tbody>
+  </table></div>
+  <ul class="notes">
+    <li><b>Bear:</b> agility and strength are about equal; attack power is half a strength, since strength gives the bear 2. Crit is worth most: 1% is as much as 15–18 strength, as a Swipe crit is more damage and Blood Frenzy's rage for the next Swipe. Agility is mostly its crit. The bear never dies here, so stamina and armour buy almost nothing.</li>
+    <li><b>Cat:</b> agility first, as it also gives 1 attack power. Crit is worth about half what it is on the bear (one target, no rage behind it). Armour counts at face value (Cat Form does not multiply it) and shortens the rests. Stamina matters at 20–39, where the cat sometimes dies: there it is worth more than strength.</li>
+    <li><b>Balance to 39:</b> one target at a time, so spell power is everything; intellect and stamina are next to worthless (the rests are short).</li>
+    <li><b>Balance from 40:</b> the storm runs on mana, so intellect is worth 1.5–2× spell power and spirit about as much; spell power itself adds little (the storm's coefficient is small). At 40–43, right after the respec, Hurricane on three dies often: stamina is worth most there, and intellect's value is noise.</li>
+  </ul>
   <h2 class="sec">About these numbers</h2>
   <p class="sub">Simulated on client 1.60.1.70753 (the launch talent tree) with the numbers of the 2026-11-03 patch notes. High Order skyborne (Wind Blessed +2% haste, Read Leyline +50% regeneration while eating and drinking). Mobs of your own level; 55% of a level's XP comes from kills. Two gear sets, never swapped: <b>feral</b> (melee greens, two-handed weapon) or <b>Balance</b> (spell power greens and weapon). Hours include walking (Cat Form and Feral Swiftness from 20, Travel Form from 30, mount from 40). Every level is measured with its build's best rotation, over 24 seeds of 30-minute sessions.</p>
   <h3 class="sec">Summary</h3>
