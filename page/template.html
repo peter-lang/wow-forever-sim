@@ -234,8 +234,8 @@ function show(key) {
   for (const C of DATA.compare) {
     let h = `<thead><tr><th>Levels</th><th>Faster</th><th class="r">By</th><th class="r">${C.names[0]} hours</th><th class="r">${C.names[1]} hours</th><th class="r">Difference</th></tr></thead><tbody>`;
     for (const r of C.ranges) {
-      const who = r.who === "tie" ? `<span class="mute">tie (±${C.tie}%)</span>` : `<b class="${r.who}">${r.who === "feral" ? C.names[0] : C.names[1]}</b>`;
-      h += `<tr><td>${fmt(r)}</td><td>${who}</td><td class="r">${r.who === "tie" ? "—" : hu(r.pct, 1) + "%"}</td><td class="r">${hu(r.f, 2)}</td><td class="r">${hu(r.b, 2)}</td><td class="r">${hu(Math.abs(r.f - r.b), 2)} h</td></tr>`;
+      const who = r.early ? `<span class="mute">no talents yet: everyone levels alike</span>` : r.who === "tie" ? `<span class="mute">tie (±${C.tie}%)</span>` : `<b class="${r.who}">${r.who === "feral" ? C.names[0] : C.names[1]}</b>`;
+      h += `<tr><td>${fmt(r)}</td><td>${who}</td><td class="r">${r.early || r.who === "tie" ? "—" : hu(r.pct, 1) + "%"}</td><td class="r">${hu(r.f, 2)}</td><td class="r">${hu(r.b, 2)}</td><td class="r">${hu(Math.abs(r.f - r.b), 2)} h</td></tr>`;
     }
     h += `<tr><td><b>1–59</b></td><td></td><td></td><td class="r"><b>${hu(C.total.f, 2)}</b></td><td class="r"><b>${hu(C.total.b, 2)}</b></td><td class="r">${hu(Math.abs(C.total.f - C.total.b), 2)} h</td></tr></tbody>`;
     let l = `<thead><tr><th class="r">Level</th><th class="r">${C.names[0]} XP/h</th><th class="r">${C.names[1]} XP/h</th><th class="r">${C.names[0]} hours</th><th class="r">${C.names[1]} hours</th><th class="r">${C.names[0]} faster by</th></tr></thead><tbody>`;

@@ -20,6 +20,7 @@ BY_NAME = {a["name"]: a for a in SITE.values()}
 TALENT = {n for n, s in BOOK.items() if s["talent"]}
 FIRST = {n: min((r[2] for r in s["ranks"] if r[2] is not None), default=0) for n, s in BOOK.items()}
 TIE = 1.0  # percent: closer than this is the runs' noise
+FIRST_TALENT = 10
 
 
 def icon(slug):
@@ -185,11 +186,16 @@ def compare(f, b):
     def who(r):
         d = r["b"] / r["f"] - 1
         return "tie" if abs(d) * 100 < TIE else ("feral" if d > 0 else "balance")
-    ranges = [{"who": who(r), "lo": r["level"], "hi": r["level"], "f": r["f"], "b": r["b"]} for r in levels]
     def merge(x, y):
         z = {"lo": x["lo"], "hi": y["hi"], "f": x["f"] + y["f"], "b": x["b"] + y["b"]}
         z["who"] = who(z)
         return z
+    # before the first talent (10) every druid levels the same way: one row, outside the merging
+    early = [{"who": "", "lo": r["level"], "hi": r["level"], "f": r["f"], "b": r["b"]} for r in levels if r["level"] < FIRST_TALENT]
+    start = early[0]
+    for r in early[1:]:
+        start = merge(start, r)
+    ranges = [{"who": who(r), "lo": r["level"], "hi": r["level"], "f": r["f"], "b": r["b"]} for r in levels if r["level"] >= FIRST_TALENT]
     # a run of one level is that level's noise: it joins its shorter neighbour, until none is left
     while True:
         out = []
@@ -206,6 +212,7 @@ def compare(f, b):
         j = i + 1 if i == 0 else i - 1 if i == len(ranges) - 1 or ranges[i - 1]["hi"] - ranges[i - 1]["lo"] <= ranges[i + 1]["hi"] - ranges[i + 1]["lo"] else i + 1
         lo, hi = min(i, j), max(i, j)
         ranges[lo:hi + 1] = [merge(ranges[lo], ranges[hi])]
+    ranges.insert(0, {**start, "early": True})
     for r in ranges:
         r["pct"] = abs(max(r["f"], r["b"]) / min(r["f"], r["b"]) - 1) * 100
     return {"tie": TIE, "ranges": ranges, "levels": levels, "total": {"f": sum(r["f"] for r in levels), "b": sum(r["b"] for r in levels)}}
