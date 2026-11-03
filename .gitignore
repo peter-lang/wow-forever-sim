@@ -1,0 +1,13 @@
+# client tables, downloaded by tools/fetch.py
+data/
+# the sims' caches and results
+out/
+# the page's talent icons, downloaded by page/page.py
+page/icons/
+target/
+__pycache__/
+.DS_Store
+.idea/
+# logs, and the downloader's partial files
+*.log
+*.part

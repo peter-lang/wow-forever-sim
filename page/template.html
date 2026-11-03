@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Forever druid levelling</title>
+<meta name="description" content="Simulated levelling routes 1-60 for the druid in World of Warcraft: Forever: Balance, Feral and cat builds, talent orders and rotations by level.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=PT+Sans+Narrow:wght@400;700&display=swap">
+<style>
+/* Layout: a route switch over the Balance, Feral and Restoration talent-calculator panels (two sets around a respec), the order level by level beneath, and every level's rotation. */
+:root {
+  --bg: #111014; --panel: #1b1920; --line: #36303f; --fg: #e6e0ee; --muted: #9a90a8;
+  --gold: #d9a441; --gold-bright: #ffdf52; --gain: #7ccf8a; --end: #b49cf0; --dim: #565063; --neg: #e08080; --respec: #2a2236;
+  --display: "Cinzel", "Trajan Pro", Georgia, serif;
+  --body: "PT Sans Narrow", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 15px;
+  padding-block: 24px 32px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.wrap { display: flex; flex-direction: column; gap: 16px; align-items: center; }
+h1 { font-family: var(--display); font-weight: 700; font-size: 26px; margin: 0; letter-spacing: .04em; text-wrap: balance; text-align: center; }
+h2.sec { font-family: var(--display); font-weight: 600; font-size: 18px; letter-spacing: .05em; margin: 10px 0 0; text-align: center; }
+.sub { color: var(--muted); margin: 0; text-align: center; max-width: 92ch; line-height: 1.4; }
+.switch { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+.switch button { font: inherit; font-family: var(--display); font-weight: 600; letter-spacing: .05em; font-size: 14px;
+  background: var(--panel); color: var(--muted); border: 1px solid var(--line); border-radius: 6px; padding: 7px 14px; cursor: pointer; }
+.switch button span { font-family: var(--body); font-weight: 400; letter-spacing: 0; margin-left: 6px; font-size: 13px; }
+.switch button[aria-pressed="true"] { color: var(--fg); border-color: var(--gold); }
+.switch button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.legend { display: flex; gap: 8px 18px; flex-wrap: wrap; justify-content: center; font-size: 14px; color: var(--muted); max-width: 110ch; }
+.legend b.gain { color: var(--gain); } .legend b.end { color: var(--end); }
+.phase { display: flex; flex-direction: column; gap: 8px; align-items: center; max-width: 100%; }
+.phase h3 { font-family: var(--display); font-weight: 600; font-size: 15px; letter-spacing: .05em; margin: 0; }
+.phase h3 span { font-family: var(--body); font-weight: 400; color: var(--muted); letter-spacing: 0; margin-left: 6px; font-size: 14px; }
+.trees { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; max-width: 100%; }
+.scroll { overflow-x: auto; max-width: 100%; }
+.panel { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 0 2px 2px 16px; }
+.panel h4 { font-family: var(--display); font-weight: 600; font-size: 15px; letter-spacing: .05em; margin: 0 -2px 4px -16px; padding: 4px 8px; text-align: center; border-bottom: 1px solid var(--line); }
+.panel h4 span { font-family: var(--body); font-weight: 400; font-size: 13px; color: var(--muted); letter-spacing: 0; margin-left: 8px; }
+.grid { position: relative; display: grid; grid-template-columns: repeat(4, 72px); grid-auto-rows: 78px; }
+svg.arrows { position: absolute; inset: 0; pointer-events: none; overflow: visible; z-index: 0; }
+.gate { position: absolute; left: -15px; width: 12px; text-align: right; font-size: 10px; color: var(--dim); font-variant-numeric: tabular-nums; }
+.cell { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; min-width: 0; padding-top: 2px; text-align: center; }
+.icon { position: relative; width: 34px; height: 34px; flex: none; }
+.icon img { width: 100%; height: 100%; display: block; padding: 2px; clip-path: polygon(15% 0, 85% 0, 100% 15%, 100% 85%, 85% 100%, 15% 100%, 0 85%, 0 15%); filter: grayscale(.9) brightness(.55); }
+.icon svg { position: absolute; inset: -1px; width: calc(100% + 2px); height: calc(100% + 2px); overflow: visible; }
+.icon svg path { fill: none; stroke: var(--dim); stroke-width: 1.8; stroke-linejoin: round; }
+.rank { position: absolute; right: -8px; bottom: -3px; z-index: 2; min-width: 14px; padding: 0 2px; background: #0b0a0d; border: 1px solid var(--dim); border-radius: 2px; font-size: 10px; line-height: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.taken .icon img { filter: none; }
+.taken .icon svg path { stroke: #4fbf3a; }
+.taken .rank { color: #5fe05a; border-color: #4f8f46; }
+.maxed .icon svg path { stroke: var(--gold-bright); }
+.maxed .rank { color: var(--gold-bright); border-color: var(--gold); }
+.name { margin-top: 3px; font-size: 10px; line-height: 1.05; color: var(--dim); width: 70px; }
+.taken .name { color: var(--fg); }
+.vals { display: flex; gap: 3px; justify-content: center; font-size: 10.5px; line-height: 1.15; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.vals .gain { color: var(--gain); } .vals .end { color: var(--end); }
+.vals .rs { color: var(--gold); } .vals .z { opacity: .45; } .vals .big { font-weight: 700; }
+.order { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 4px 14px; width: 100%; max-width: 1180px; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; font-size: 13.5px; }
+.order div { display: grid; grid-template-columns: 26px minmax(0, 1fr) auto; gap: 6px; align-items: baseline; font-variant-numeric: tabular-nums; }
+.order .lv { color: var(--muted); text-align: right; }
+.order .g { color: var(--gain); } .order .g.z { color: var(--dim); }
+.order .respec { grid-column: 1 / -1; background: var(--respec); border-radius: 4px; padding: 4px 6px; grid-template-columns: 26px minmax(0, 1fr) auto; }
+.order .respec b { color: var(--gold); font-weight: 700; }
+.tablewrap { overflow-x: auto; max-width: 100%; width: 100%; max-width: 1180px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); }
+table { border-collapse: collapse; font-size: 13.5px; width: 100%; }
+th, td { padding: 6px 8px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
+th { color: var(--muted); font-weight: 700; white-space: nowrap; position: sticky; top: 0; background: var(--panel); }
+td.r, th.r { text-align: right; font-variant-numeric: tabular-nums; }
+td.rot { min-width: 320px; }
+td ol { margin: 0; padding-left: 18px; line-height: 1.35; }
+td .rules { color: var(--muted); font-size: 12.5px; margin-top: 3px; }
+td .mute { color: var(--muted); font-size: 12.5px; }
+tr.respec td { background: var(--respec); }
+h3.sec { font-family: var(--display); font-weight: 600; font-size: 15px; letter-spacing: .03em; margin: 18px 0 6px; }
+.notes { color: var(--muted); font-size: 13.5px; line-height: 1.45; max-width: 100ch; margin: 0; padding-left: 18px; }
+.notes b { color: var(--fg); }
+.more { width: 100%; max-width: 1180px; color: var(--muted); }
+.more summary { cursor: pointer; padding: 4px 0; }
+b.feral { color: var(--gold); } b.balance { color: var(--end); }
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <h1>WoW: Forever druid levelling 1–60</h1>
+  <p class="sub">Simulated on client 1.60.1.70753 (the launch talent tree) with the numbers of the 2026-11-03 patch notes. High Order skyborne (Wind Blessed +2% haste, Read Leyline +50% regeneration while eating and drinking). Mobs of your own level; 55% of a level's XP comes from kills. Two gear sets, never swapped: <b>feral</b> (melee greens, two-handed weapon) or <b>Balance</b> (spell power greens and weapon). Hours include walking (Cat Form and Feral Swiftness from 20, Travel Form from 30, mount from 40). Every level is measured with its build's best rotation, over 24 seeds of 30-minute sessions.</p>
+  <h2 class="sec">Summary</h2>
+  <p class="sub"><b>Balance: 80.3 hours</b> (one target to 39, respec at 40, then Hurricane). <b>Feral: 86.5 hours</b> (caster to 12, bear 13–19, cat 20–39, bear from 40; one build, no respec). <b>Cat build: 86.8 hours</b> (bear 13–19 before Cat Form, cat from 20; no respec).</p>
+  <ul class="notes">
+    <li><b>Balance is the fastest single route</b>, by 6 hours. The feral and the cat build are level within noise (0.3%).</li>
+    <li><b>Fastest overall: cat to 39, then a respec to Balance at 40</b> with spell power gear and Hurricane on three mobs: about 78.1 hours (put together from the two routes' levels).</li>
+    <li><b>Pulls are three mobs</b> for the bear and for Hurricane, and 7.5% of kills are assumed to die alone even then.</li>
+    <li><b>Not tried in game:</b> whether three mobs stay inside Hurricane, and the extra health the patch notes give higher-level mobs (no number published, not modelled). Both could change the result.</li>
+    <li><b>What does not pay while levelling:</b> openers from stealth (no chain pulls while prowling), Starfire as the filler, Shifting Power (its mana is drunk back between pulls).</li>
+  </ul>
+  <h2 class="sec">Which is faster, and where</h2>
+  <p class="sub">Hours are a level's whole time: killing, resting and walking. Single-level differences can be noise, so they are merged with a neighbour. Within 1% counts as a tie.</p>
+  <div id="cmps" class="wrap" style="width:100%"></div>
+  <h2 class="sec">The routes</h2>
+  <div class="switch" id="switch" role="group" aria-label="Route"></div>
+  <div class="legend">
+    <span><b class="gain">+X%</b> when taken: what the points gave at the level they were taken (the new build against the previous level's, at the same level)</span>
+    <span><b class="end">Y%</b> at level 59, the last one played: how much slower you would be there without the talent (all its ranks removed)</span>
+  </div>
+  <div id="phases" class="wrap"></div>
+  <h2 class="sec">Talent order by level</h2>
+  <p class="sub">The new point and what it gave at that level. The effect of levelling up itself (stronger mobs, new ranks, gear) is not in it.</p>
+  <div class="order" id="order"></div>
+  <h2 class="sec">Rotation by level</h2>
+  <p class="sub">A priority list: at every moment, the first entry that can be used.</p>
+  <div class="tablewrap"><table id="rot"></table></div>
+  <ul class="notes">
+    <li><b>How a route is made:</b> a talent order written by hand from the tooltips and from where the time goes; the sim checks it. Each level fights in whichever form is fastest there.</li>
+    <li><b>Death:</b> 2 minutes back to the corpse and healed to full; the XP of the mobs being pulled is lost.</li>
+    <li><b>Not simulated:</b> Bash, Tranquility.</li>
+  </ul>
+  <p class="sub">Generated by <a href="https://github.com/peter-lang/wow-forever-sim" style="color:var(--gold)">wow-forever-sim</a>, a vibe-coded simulator. Talent icons and tooltips via foreverchanges.pro. World of Warcraft is a trademark of Blizzard Entertainment.</p>
+</div>
+<script>
+const DATA = __DATA__;
+const W = 72, H = 78;
+const ns = "http://www.w3.org/2000/svg";
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const pc = (x, d = 1) => (x < -0.0005 ? "−" : "+") + Math.abs(x * 100).toFixed(d) + "%";
+const hu = (x, d = 0) => x.toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
+const base = n => n.replace(/ \d+$/, "");
+
+const sw = document.getElementById("switch");
+for (const R of DATA.routes) {
+  const b = document.createElement("button");
+  b.type = "button"; b.dataset.key = R.key;
+  b.innerHTML = `${esc(R.label)}<span>${hu(R.hours + R.early, 2)} h</span>`;
+  b.addEventListener("click", () => show(R.key));
+  sw.appendChild(b);
+}
+
+function treePanel(tab, P, R, isEnd) {
+  const at = {};
+  const spent = tab.talents.reduce((a, t) => a + (P.build[t.name] || 0), 0);
+  const rows = 7;
+  const scroll = document.createElement("div"); scroll.className = "scroll";
+  scroll.innerHTML = `<div class="panel"><h4>${tab.name}<span>${spent} points</span></h4><div class="grid"><svg class="arrows"></svg></div></div>`;
+  const grid = scroll.querySelector(".grid"), svg = scroll.querySelector("svg");
+  grid.style.gridTemplateRows = `repeat(${rows}, ${H}px)`;
+  for (let r = 0; r < rows; r++) {
+    const g = document.createElement("div");
+    g.className = "gate"; g.style.top = (r * H + 10) + "px"; g.textContent = r * 5;
+    grid.appendChild(g);
+  }
+  for (const t of tab.talents) {
+    at[t.name] = t;
+    const rank = P.build[t.name] || 0;
+    const c = document.createElement("div");
+    c.className = "cell" + (rank ? " taken" : "") + (rank === t.max ? " maxed" : "");
+    c.style.gridColumn = t.col + 1; c.style.gridRow = t.row + 1;
+    let vals = "", tip = [t.name + (t.text ? ": " + t.text : "")];
+    if (rank) {
+      const g = R.gains[t.name], w = P.without[t.name];
+      if (isEnd && R.bought.includes(t.name)) {
+        vals += `<span class="rs">respec</span>`;
+        tip.push("Came in with the respec: its gain when taken cannot be measured.");
+      } else if (g != null) {
+        vals += `<span class="gain${Math.abs(g) < 0.005 ? " z" : ""}${g >= 0.04 ? " big" : ""}">${pc(g)}</span>`;
+        tip.push(`When taken: ${pc(g)} (at its points' levels).`);
+      }
+      if (w != null) {
+        vals += `<span class="end${Math.abs(w) < 0.005 ? " z" : ""}${w >= 0.05 ? " big" : ""}">${pc(w)}</span>`;
+        tip.push(`At level ${P.level}, ${pc(w)} slower without it.`);
+      }
+    }
+    c.title = tip.join("\n\n");
+    c.innerHTML = `<div class="icon">${t.img ? `<img src="${t.img}" alt="">` : ""}<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M6 1H34L39 6V34L34 39H6L1 34V6Z"/></svg><span class="rank">${rank}/${t.max}</span></div>` +
+      `<div class="name">${esc(t.name)}</div><div class="vals">${vals}</div>`;
+    grid.appendChild(c);
+  }
+  svg.setAttribute("width", 4 * W); svg.setAttribute("height", rows * H);
+  const id = "head-" + tab.name + Math.random().toString(36).slice(2, 7);
+  svg.innerHTML = `<defs><marker id="${id}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 L3,5 z" fill="context-stroke"/></marker></defs>`;
+  // every arrow in the tree is straight down: from under the parent's text to the child's icon
+  for (const [a, b] of DATA.edges) {
+    const p = at[a], q = at[b];
+    if (!p || !q) continue;
+    const x = p.col * W + W / 2;
+    const line = document.createElementNS(ns, "path");
+    line.setAttribute("d", `M${x},${(p.row + 1) * H - 4} V${q.row * H + 1}`);
+    line.setAttribute("fill", "none");
+    line.setAttribute("stroke", P.build[b] ? "#ffdf52" : "#7a7088");
+    line.setAttribute("stroke-width", "2");
+    line.setAttribute("marker-end", `url(#${id})`);
+    svg.appendChild(line);
+  }
+  return scroll;
+}
+
+function show(key) {
+  for (const b of sw.children) b.setAttribute("aria-pressed", String(b.dataset.key === key));
+  try { history.replaceState(null, "", "#" + key); } catch (e) {}
+  const R = DATA.routes.find(r => r.key === key);
+  const host = document.getElementById("phases");
+  host.textContent = "";
+  R.phases.forEach((P, i) => {
+    const isEnd = i === R.phases.length - 1;
+    const ph = document.createElement("div"); ph.className = "phase";
+    const title = R.respec ? (isEnd ? `After the respec<span>from level ${R.respec}, the trees at 60</span>` : `Before the respec<span>levels 10–${P.level}, the trees at ${P.level}</span>`) : `The build at 60<span>from level 10, no respec</span>`;
+    ph.innerHTML = `<h3>${title}</h3>`;
+    const trees = document.createElement("div"); trees.className = "trees";
+    for (const tab of DATA.tabs) trees.appendChild(treePanel(tab, P, R, isEnd));
+    ph.appendChild(trees);
+    host.appendChild(ph);
+  });
+  // the order
+  document.getElementById("order").innerHTML = R.order.map(o => {
+    const gone = o.gone.length ? ` <span class="mute">(out: ${esc(o.gone.join(", "))})</span>` : "";
+    if (o.respec) return `<div class="respec"><span class="lv">${o.level}</span><span><b>respec</b> → ${esc(o.new.map(base).join(", "))}${gone}</span><span class="g">${pc(o.gain)}</span></div>`;
+    return `<div><span class="lv">${o.level}</span><span>${esc(o.new.join(", "))}</span><span class="g${Math.abs(o.gain) < 0.005 ? " z" : ""}">${pc(o.gain)}</span></div>`;
+  }).join("");
+  // the rotations
+  let h = `<thead><tr><th class="r">level</th><th>new points</th><th class="r">XP/h</th><th class="r">hours</th><th>form, mobs</th><th>rotation (priority)</th></tr></thead><tbody>`;
+  for (const s of R.rot) {
+    const pts = s.respec ? `<b style="color:var(--gold)">respec</b>` : esc(s.new.join(", ") || "—");
+    h += `<tr class="${s.respec ? "respec" : ""}"><td class="r">${s.level}</td><td>${pts}</td><td class="r">${hu(s.xp)}</td><td class="r">${hu(s.hours, 2)}</td>` +
+      `<td>${esc(s.rot.form)}<br><span class="mute">${s.rot.mobs} mob${s.rot.mobs > 1 ? "s" : ""} a pull</span></td>` +
+      `<td class="rot"><ol>${s.rot.steps.map(x => `<li>${esc(x)}</li>`).join("")}</ol><div class="rules">${esc(s.rot.rules.join(" · "))}</div></td></tr>`;
+  }
+  document.getElementById("rot").innerHTML = h + "</tbody>";
+}
+// which kit is faster where
+{
+  const fmt = r => r.lo === r.hi ? `${r.lo}` : `${r.lo}–${r.hi}`;
+  const host = document.getElementById("cmps");
+  for (const C of DATA.compare) {
+    let h = `<thead><tr><th>Levels</th><th>Faster</th><th class="r">By</th><th class="r">${C.names[0]} hours</th><th class="r">${C.names[1]} hours</th><th class="r">Difference</th></tr></thead><tbody>`;
+    for (const r of C.ranges) {
+      const who = r.who === "tie" ? `<span class="mute">tie (±${C.tie}%)</span>` : `<b class="${r.who}">${r.who === "feral" ? C.names[0] : C.names[1]}</b>`;
+      h += `<tr><td>${fmt(r)}</td><td>${who}</td><td class="r">${r.who === "tie" ? "—" : hu(r.pct, 1) + "%"}</td><td class="r">${hu(r.f, 2)}</td><td class="r">${hu(r.b, 2)}</td><td class="r">${hu(Math.abs(r.f - r.b), 2)} h</td></tr>`;
+    }
+    h += `<tr><td><b>1–59</b></td><td></td><td></td><td class="r"><b>${hu(C.total.f, 2)}</b></td><td class="r"><b>${hu(C.total.b, 2)}</b></td><td class="r">${hu(Math.abs(C.total.f - C.total.b), 2)} h</td></tr></tbody>`;
+    let l = `<thead><tr><th class="r">Level</th><th class="r">${C.names[0]} XP/h</th><th class="r">${C.names[1]} XP/h</th><th class="r">${C.names[0]} hours</th><th class="r">${C.names[1]} hours</th><th class="r">${C.names[0]} faster by</th></tr></thead><tbody>`;
+    for (const r of C.levels) l += `<tr><td class="r">${r.level}</td><td class="r">${hu(r.fx)}</td><td class="r">${hu(r.bx)}</td><td class="r">${hu(r.f, 2)}</td><td class="r">${hu(r.b, 2)}</td><td class="r">${pc(r.b / r.f - 1)}</td></tr>`;
+    const d = document.createElement("div"); d.className = "wrap"; d.style.width = "100%";
+    d.innerHTML = `<h3 class="sec">${esc(C.title)}</h3><div class="tablewrap"><table>${h}</table></div><details class="more"><summary>By level</summary><div class="tablewrap"><table>${l}</table></div></details>`;
+    host.appendChild(d);
+  }
+}
+const start = (location.hash || "").slice(1);
+show(DATA.routes.some(r => r.key === start) ? start : DATA.routes[0].key);
+</script>
+</body>
+</html>

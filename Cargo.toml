@@ -1,0 +1,23 @@
+[package]
+name = "forever"
+version = "0.1.0"
+edition = "2021"
+description = "WoW: Forever druid levelling 1-60 from the game client's own tables"
+
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+name = "forever"
+path = "src/bin/forever.rs"
+
+[dependencies]
+csv = "1.4.0"
+rand = "0.8.5"
+rayon = "1.10.0"
+serde = { version = "1.0.210", features = ["derive"] }
+serde_json = "1.0.128"
+
+[profile.release]
+opt-level = 3
+lto = true
