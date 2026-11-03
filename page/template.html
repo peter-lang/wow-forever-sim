@@ -89,7 +89,7 @@ b.feral { color: var(--gold); } b.balance { color: var(--end); }
   <h1>WoW: Forever druid levelling 1–60</h1>
   <div class="switch" id="switch" role="group" aria-label="Route"></div>
   <div class="legend">
-    <span><b class="end">Y%</b> under a talent: how much longer one level takes without it (all its ranks removed), with that build at that level, not the whole journey there. Each set of trees is measured on its own: the line above it says at which level.</span>
+    <span><b class="end">Y%</b> under a talent: how much longer the whole stretch the trees cover would take without it (all its ranks removed from every level that has them). The line above each set of trees says which levels.</span>
   </div>
   <div id="phases" class="wrap"></div>
   <h2 class="sec">Talent order by level</h2>
@@ -207,7 +207,7 @@ function treePanel(tab, P) {
       const w = P.without[t.name];
       if (w != null) {
         vals += `<span class="end${Math.abs(w) < 0.005 ? " z" : ""}${w >= 0.05 ? " big" : ""}">${pc(w)}</span>`;
-        tip.push(`At level ${P.level}, ${pc(w)} slower without it.`);
+        tip.push(`Levels ${P.lo}–${P.level + 1}: ${pc(w)} longer without it.`);
       }
     }
     c.title = tip.join("\n\n");
@@ -243,11 +243,10 @@ function show(key) {
   R.phases.forEach((P, i) => {
     const isEnd = i === R.phases.length - 1;
     const ph = document.createElement("div"); ph.className = "phase";
-    const title = R.respec ? (isEnd ? `After the respec<span>levels ${R.respec}–${P.level}, the trees at ${P.level}</span>` : `Before the respec<span>levels 10–${P.level}, the trees at ${P.level}</span>`) : `The build at ${P.level}<span>from level 10, no respec</span>`;
-    const last = R.phases[R.phases.length - 1].level;
-    const cap = !R.respec ? `how much longer level ${P.level} alone (${P.level} to ${P.level + 1}, the last level played) would take without the talent, with this build.`
-      : !isEnd ? `how much longer level ${P.level} alone (${P.level} to ${P.level + 1}, the last level before the respec) would take without the talent, with the build before it. The trees after the respec are measured again, at ${last}, so the same talent shows a different number there.`
-      : `how much longer level ${P.level} alone (${P.level} to ${P.level + 1}, the last level played) would take without the talent, with the build after the respec. A separate measurement from the trees above, at a different level and with a different build.`;
+    const title = R.respec ? (isEnd ? `After the respec<span>levelling ${R.respec}–60, the trees at ${P.level}</span>` : `Before the respec<span>levelling 1–${R.respec}, the trees at ${P.level}</span>`) : `The build<span>levelling 1–60, no respec, the trees at ${P.level}</span>`;
+    const cap = !R.respec ? `how much longer levelling from 1 to 60 would take without the talent.`
+      : !isEnd ? `how much longer levelling from 1 to ${R.respec} would take without the talent. Levels ${R.respec}–60 are in the trees below, on their own.`
+      : `how much longer levelling from ${R.respec} to 60 would take without the talent, with the build after the respec. Levels 1–${R.respec} are in the trees above, on their own.`;
     ph.innerHTML = `<h3>${title}</h3><p class="cap"><b>Y%</b>: ${cap}</p>`;
     const trees = document.createElement("div"); trees.className = "trees";
     for (const tab of DATA.tabs) trees.appendChild(treePanel(tab, P));

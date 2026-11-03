@@ -33,8 +33,8 @@ pub struct Row {
     pub xp: f64,
     /// the level before's build at this level (at a respec: this build)
     pub before_build: f64,
-    /// each talent taken out whole: XP an hour without it (the respec's eve and 59 only)
-    pub without: Vec<(String, u32, f64)>,
+    /// each talent of the build taken out whole: its ranks, XP an hour and the level's hours without it
+    pub without: Vec<(String, u32, f64, f64)>,
     pub play: Play,
     pub deaths_a_day: f64,
 }
@@ -67,8 +67,9 @@ pub fn walk(d: &Data, r: &Route) -> Walked {
             } else {
                 l.3.xp(level, &build_of(&l.2, (level - FIRST_TALENT) as usize)).0
             };
-            let without = if level == 59 || Some(level + 1) == respec_at {
-                b.iter().map(|(n, &rank)| { let mut o = b.clone(); o.remove(n); (n.clone(), rank, l.3.xp(level, &o).0) }).collect()
+            // every level played: the page sums them into a talent's worth over a whole leg
+            let without = if level < TOP {
+                b.iter().map(|(n, &rank)| { let mut o = b.clone(); o.remove(n); let w = l.3.step(level, &o); (n.clone(), rank, w.xp_per_hour, w.hours) }).collect()
             } else {
                 Vec::new()
             };

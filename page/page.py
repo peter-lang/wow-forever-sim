@@ -158,10 +158,16 @@ def route(label, key, r):
         gone = [k for k in prev if k not in s["build"]]
         order.append({"level": s["level"], "new": [f"{k} {v}" for k, v in new.items()], "gone": gone, "gain": g, "respec": is_respec})
         prev = s["build"]
-    # the last level actually played: 60 brings ranks no route spends time with
-    end = rows[59]
-    phase = lambda c: {"level": c["level"], "build": c["build"], "without": {t: c["xp"] / x - 1 for t, _, x in c["without"]}}
-    phases = [phase(rows[respec - 1]), phase(end)] if respec else [phase(end)]
+    # a talent's worth over a leg: the leg's hours without it (taken out at every level that has it) against its hours
+    # with it. Before a respec the leg is 1 to the respec, after it the respec to 60; 60 itself is not played.
+    hours = {s["level"]: s["hours"] for s in early + steps if s["level"] < 60}
+    def phase(lo, hi):
+        with_ = sum(hours[l] for l in range(lo, hi + 1))
+        out = {l: {t: h for t, _, _, h in rows[l]["without"]} for l in range(max(lo, steps[0]["level"]), hi + 1)}
+        names = rows[hi]["build"]
+        return {"level": hi, "lo": lo, "build": names,
+                "without": {t: sum(out.get(l, {}).get(t, hours[l]) for l in range(lo, hi + 1)) / with_ - 1 for t in names}}
+    phases = [phase(1, respec - 1), phase(respec, 59)] if respec else [phase(1, 59)]
     rot = [{"level": s["level"], "new": [], "respec": False, "xp": s["xp_per_hour"], "hours": s["hours"], "rot": rotation(s["play"], {}, s["level"])} for s in early]
     prev = {}
     for s in steps:
